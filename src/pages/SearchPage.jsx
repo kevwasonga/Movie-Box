@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, Filter, X } from 'lucide-react'
 import MovieGrid from '../components/movie/MovieGrid'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import SearchBar from '../components/common/SearchBar'
 import apiService from '../services/apiService'
 import { useApp } from '../context/AppContext'
 import { debounce } from '../utils/helpers'
@@ -137,18 +138,20 @@ const SearchPage = () => {
           </h1>
 
           {/* Search Form */}
-          <form onSubmit={handleSearchSubmit} className="mb-6">
-            <div className="relative max-w-2xl">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search for movies, TV shows..."
-                className="input-field pl-12 pr-4 py-3 text-lg w-full"
-              />
-            </div>
-          </form>
+          <div className="mb-6">
+            <SearchBar
+              initialValue={searchInput}
+              placeholder="Search for movies, TV shows..."
+              onSearch={(query) => {
+                setSearchInput(query)
+                setSearchQuery(query)
+                performSearch(query, 1)
+              }}
+              onInputChange={(value) => setSearchInput(value)}
+              size="large"
+              className="max-w-2xl"
+            />
+          </div>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

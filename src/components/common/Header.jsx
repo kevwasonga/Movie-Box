@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Search, Menu, X, Sun, Moon, Heart, Home, Film } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { APP_TITLE } from '../../utils/constants'
+import SearchSuggestions from './SearchSuggestions'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -10,6 +11,9 @@ const Header = () => {
   const { theme, toggleTheme, watchlist, searchQuery, setSearchQuery } = useApp()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchInput, setSearchInput] = useState(searchQuery)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const searchRef = useRef(null)
+  const mobileSearchRef = useRef(null)
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -22,7 +26,41 @@ const Header = () => {
 
   const handleSearchInputChange = (e) => {
     setSearchInput(e.target.value)
+    setShowSuggestions(true)
   }
+
+  const handleSearchFocus = () => {
+    setShowSuggestions(true)
+  }
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.isRecentSearch || suggestion.isViewAll) {
+      // Handle recent search or view all
+      setSearchInput(suggestion.displayTitle)
+      setSearchQuery(suggestion.displayTitle)
+      navigate(`/search?q=${encodeURIComponent(suggestion.displayTitle)}`)
+    } else {
+      // Navigate to specific movie/TV show
+      navigate(`/${suggestion.media_type}/${suggestion.id}`)
+    }
+    setShowSuggestions(false)
+    setIsMenuOpen(false)
+  }
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchRef.current && !searchRef.current.contains(event.target) &&
+        mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const isActive = (path) => {
     return location.pathname === path
@@ -71,14 +109,21 @@ const Header = () => {
 
           {/* Search Bar - Desktop */}
           <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div ref={searchRef} className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={handleSearchInputChange}
+                onFocus={handleSearchFocus}
                 placeholder="Search movies and TV shows..."
                 className="input-field pl-10 pr-4 py-2 w-full"
+              />
+              <SearchSuggestions
+                query={searchInput}
+                onSuggestionClick={handleSuggestionClick}
+                isVisible={showSuggestions && searchInput.length >= 0}
+                className="mt-1"
               />
             </div>
           </form>
@@ -118,14 +163,21 @@ const Header = () => {
           <div className="md:hidden border-t border-gray-200 dark:border-dark-700 py-4 space-y-4">
             {/* Mobile Search */}
             <form onSubmit={handleSearch} className="px-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <div ref={mobileSearchRef} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
                 <input
                   type="text"
                   value={searchInput}
                   onChange={handleSearchInputChange}
+                  onFocus={handleSearchFocus}
                   placeholder="Search movies and TV shows..."
                   className="input-field pl-10 pr-4 py-2 w-full"
+                />
+                <SearchSuggestions
+                  query={searchInput}
+                  onSuggestionClick={handleSuggestionClick}
+                  isVisible={showSuggestions && searchInput.length >= 0}
+                  className="mt-1"
                 />
               </div>
             </form>
