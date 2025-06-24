@@ -1,6 +1,13 @@
 import axios from 'axios'
-import { TMDB_API_KEY, TMDB_BASE_URL, CACHE_DURATION } from '../utils/constants'
+import { TMDB_API_KEY, TMDB_BASE_URL, CACHE_DURATION, isApiConfigured } from '../utils/constants'
 import { cacheGet, cacheSet } from '../utils/cache'
+
+// Check if API is properly configured
+const checkApiConfiguration = () => {
+  if (!isApiConfigured()) {
+    throw new Error('TMDB API key is not configured. Please add your API key to the .env file. Get a free key from https://www.themoviedb.org/settings/api')
+  }
+}
 
 // Create axios instance with default config
 const tmdbApi = axios.create({
@@ -54,21 +61,24 @@ tmdbApi.interceptors.response.use(
  * @returns {Promise<object>} API response data
  */
 const apiCall = async (endpoint, params = {}, cacheDuration = CACHE_DURATION.MEDIUM) => {
+  // Check API configuration before making requests
+  checkApiConfiguration()
+
   const cacheKey = `tmdb_${endpoint}_${JSON.stringify(params)}`
-  
+
   // Try to get from cache first
   const cachedData = cacheGet(cacheKey)
   if (cachedData) {
     return cachedData
   }
-  
+
   try {
     const response = await tmdbApi.get(endpoint, { params })
     const data = response.data
-    
+
     // Cache the response
     cacheSet(cacheKey, data, cacheDuration)
-    
+
     return data
   } catch (error) {
     throw error

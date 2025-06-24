@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, Filter, X } from 'lucide-react'
 import MovieGrid from '../components/movie/MovieGrid'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-import tmdbApi from '../services/tmdbApi'
+import apiService from '../services/apiService'
 import { useApp } from '../context/AppContext'
 import { debounce } from '../utils/helpers'
 
@@ -58,11 +58,11 @@ const SearchPage = () => {
 
       let response
       if (mediaType === 'all') {
-        response = await tmdbApi.general.multiSearch(query, page)
+        response = await apiService.general.multiSearch(query, page)
       } else if (mediaType === 'movie') {
-        response = await tmdbApi.movie.search(query, page)
+        response = await apiService.movie.search(query, page)
       } else if (mediaType === 'tv') {
-        response = await tmdbApi.tv.search(query, page)
+        response = await apiService.tv.search(query, page)
       }
 
       // Filter by year if specified

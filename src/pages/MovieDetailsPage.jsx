@@ -5,7 +5,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorMessage from '../components/common/ErrorMessage'
 import MovieGrid from '../components/movie/MovieGrid'
 import { useApp } from '../context/AppContext'
-import tmdbApi from '../services/tmdbApi'
+import apiService from '../services/apiService'
 import omdbApi from '../services/omdbApi'
 import { getImageUrl, getPlaceholderImage, formatDate, formatRuntime, formatRating } from '../utils/helpers'
 
@@ -34,16 +34,16 @@ const MovieDetailsPage = () => {
       setError(null)
 
       // Load main details
-      const detailsResponse = isMovie 
-        ? await tmdbApi.movie.getDetails(id)
-        : await tmdbApi.tv.getDetails(id)
-      
+      const detailsResponse = isMovie
+        ? await apiService.movie.getDetails(id)
+        : await apiService.tv.getDetails(id)
+
       setDetails(detailsResponse)
 
       // Load similar content
       const similarResponse = isMovie
-        ? await tmdbApi.movie.getSimilar(id)
-        : await tmdbApi.tv.getSimilar(id)
+        ? await apiService.movie.getSimilar(id)
+        : await apiService.tv.getSimilar(id)
       
       setSimilar(similarResponse.results?.slice(0, 12) || [])
 

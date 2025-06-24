@@ -1,10 +1,19 @@
 // API Configuration
-export const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'demo_key'
+export const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY
 export const TMDB_BASE_URL = import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.org/3'
 export const TMDB_IMAGE_BASE_URL = import.meta.env.VITE_TMDB_IMAGE_BASE_URL || 'https://image.tmdb.org/t/p'
 
-export const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY || 'demo_key'
+export const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY
 export const OMDB_BASE_URL = import.meta.env.VITE_OMDB_BASE_URL || 'https://www.omdbapi.com'
+
+// API Key validation
+export const isApiConfigured = () => {
+  return TMDB_API_KEY && TMDB_API_KEY !== 'your_tmdb_api_key_here' && TMDB_API_KEY !== 'demo_key'
+}
+
+export const isOmdbConfigured = () => {
+  return OMDB_API_KEY && OMDB_API_KEY !== 'your_omdb_api_key_here' && OMDB_API_KEY !== 'demo_key'
+}
 
 // App Configuration
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || 'Movie Box'
