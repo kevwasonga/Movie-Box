@@ -84,14 +84,25 @@ export const getImageUrl = (path, size = 'medium', type = 'poster') => {
 }
 
 /**
- * Get placeholder image URL
+ * Get placeholder image URL - using data URI to avoid external dependencies
  * @param {number} width - Image width
  * @param {number} height - Image height
  * @param {string} text - Placeholder text
- * @returns {string} Placeholder image URL
+ * @returns {string} Placeholder image data URI
  */
 export const getPlaceholderImage = (width = 300, height = 450, text = 'No Image') => {
-  return `https://via.placeholder.com/${width}x${height}/374151/ffffff?text=${encodeURIComponent(text)}`
+  // Create a simple SVG placeholder
+  const svg = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#374151"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">
+        ${text.length > 20 ? text.substring(0, 20) + '...' : text}
+      </text>
+    </svg>
+  `
+
+  // Convert SVG to data URI
+  return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
 /**

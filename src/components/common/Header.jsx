@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Search, Menu, X, Sun, Moon, Heart, Home, Film } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
@@ -9,7 +9,14 @@ const Header = () => {
   const location = useLocation()
   const { theme, toggleTheme, watchlist, searchQuery, setSearchQuery } = useApp()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [searchInput, setSearchInput] = useState(searchQuery)
+  const [searchInput, setSearchInput] = useState('')
+
+  // Sync with global search query only when not on search page
+  useEffect(() => {
+    if (location.pathname !== '/search') {
+      setSearchInput(searchQuery || '')
+    }
+  }, [searchQuery, location.pathname])
 
   const handleSearch = (e) => {
     e.preventDefault()

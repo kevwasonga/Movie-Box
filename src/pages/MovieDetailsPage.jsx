@@ -128,7 +128,7 @@ const MovieDetailsPage = () => {
 
   const posterUrl = poster_path
     ? getImageUrl(poster_path, 'large', 'poster')
-    : getPlaceholderImage(500, 750, displayTitle)
+    : getPlaceholderImage(500, 750, displayTitle || 'Movie Poster')
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">

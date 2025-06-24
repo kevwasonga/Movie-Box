@@ -49,9 +49,9 @@ const MovieCard = ({
     setImageLoading(false)
   }
 
-  const posterUrl = poster_path && !imageError 
+  const posterUrl = poster_path && !imageError
     ? getImageUrl(poster_path, 'medium', 'poster')
-    : getPlaceholderImage(342, 513, displayTitle)
+    : getPlaceholderImage(342, 513, displayTitle || 'Movie Poster')
 
   return (
     <div className={`card group hover:scale-105 transition-all duration-300 ${className}`}>
