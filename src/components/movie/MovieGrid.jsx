@@ -3,14 +3,14 @@ import MovieCard from './MovieCard'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
 
-const MovieGrid = ({ 
-  items = [], 
-  loading = false, 
-  error = null, 
+const MovieGrid = ({
+  items = [],
+  loading = false,
+  error = null,
   onRetry = null,
   emptyMessage = 'No movies or TV shows found.',
   showWatchlistButton = true,
-  className = '' 
+  className = ''
 }) => {
   if (loading) {
     return (
@@ -23,8 +23,8 @@ const MovieGrid = ({
   if (error) {
     return (
       <div className="py-12">
-        <ErrorMessage 
-          error={error} 
+        <ErrorMessage
+          error={error}
           onRetry={onRetry}
           className="max-w-md mx-auto"
         />
@@ -34,9 +34,12 @@ const MovieGrid = ({
 
   if (!items || items.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-500 dark:text-gray-400 text-lg">
+      <div className="text-center py-16">
+        <div className="text-gray-500 dark:text-gray-400 text-lg mb-4">
           {emptyMessage}
+        </div>
+        <div className="text-gray-400 dark:text-gray-500 text-sm">
+          Try adjusting your search terms or filters
         </div>
       </div>
     )

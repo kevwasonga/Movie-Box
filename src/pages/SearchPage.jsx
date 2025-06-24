@@ -73,6 +73,11 @@ const SearchPage = () => {
         response = await tmdbApi.tv.search(query, page)
       }
 
+      // Ensure we have a valid response
+      if (!response) {
+        throw new Error('No response received from search API')
+      }
+
       // Filter by year if specified
       let filteredResults = response.results || []
       if (year) {
@@ -85,7 +90,7 @@ const SearchPage = () => {
       // Add media_type for multi search results
       const processedResults = filteredResults.map(item => ({
         ...item,
-        media_type: item.media_type || mediaType === 'all' ? item.media_type : mediaType
+        media_type: item.media_type || (mediaType === 'all' ? item.media_type : mediaType)
       }))
 
       if (page === 1) {
@@ -255,8 +260,8 @@ const SearchPage = () => {
             error={error}
             onRetry={() => performSearch(searchInput, 1)}
             emptyMessage={
-              searchInput 
-                ? `No results found for "${searchInput}"`
+              searchInput
+                ? `No results found for "${searchInput}". Try different keywords or check your spelling.`
                 : "Enter a search term to find movies and TV shows"
             }
           />
