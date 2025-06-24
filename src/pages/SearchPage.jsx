@@ -11,14 +11,15 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { searchQuery, setSearchQuery } = useApp()
   
-  const [searchInput, setSearchInput] = useState(searchParams.get('q') || searchQuery || '')
+  const [searchInput, setSearchInput] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [totalResults, setTotalResults] = useState(0)
-  
+  const [isInitialized, setIsInitialized] = useState(false)
+
   // Filters
   const [showFilters, setShowFilters] = useState(false)
   const [mediaType, setMediaType] = useState(searchParams.get('type') || 'all')
@@ -35,18 +36,25 @@ const SearchPage = () => {
     }
   }, 500)
 
+  // Initialize search input from URL only once
   useEffect(() => {
-    const query = searchParams.get('q')
-    if (query) {
+    const query = searchParams.get('q') || searchQuery || ''
+    if (!isInitialized) {
       setSearchInput(query)
-      setSearchQuery(query)
-      performSearch(query, 1)
+      setIsInitialized(true)
+      if (query) {
+        setSearchQuery(query)
+        performSearch(query, 1)
+      }
     }
-  }, [searchParams])
+  }, [searchParams, searchQuery, isInitialized])
 
+  // Handle search input changes with debouncing
   useEffect(() => {
-    debouncedSearch(searchInput)
-  }, [searchInput, mediaType, year])
+    if (isInitialized) {
+      debouncedSearch(searchInput)
+    }
+  }, [searchInput, mediaType, year, isInitialized])
 
   const performSearch = async (query, page = 1) => {
     if (!query.trim()) return
@@ -89,12 +97,18 @@ const SearchPage = () => {
       setTotalPages(response.total_pages || 0)
       setTotalResults(response.total_results || 0)
 
-      // Update URL
-      const params = new URLSearchParams()
-      params.set('q', query)
-      if (mediaType !== 'all') params.set('type', mediaType)
-      if (year) params.set('year', year)
-      setSearchParams(params)
+      // Update URL only if it's different from current URL
+      const currentQuery = searchParams.get('q')
+      const currentType = searchParams.get('type')
+      const currentYear = searchParams.get('year')
+
+      if (currentQuery !== query || currentType !== (mediaType !== 'all' ? mediaType : null) || currentYear !== (year || null)) {
+        const params = new URLSearchParams()
+        params.set('q', query)
+        if (mediaType !== 'all') params.set('type', mediaType)
+        if (year) params.set('year', year)
+        setSearchParams(params, { replace: true })
+      }
 
     } catch (error) {
       console.error('Search error:', error)
@@ -111,6 +125,11 @@ const SearchPage = () => {
       setSearchQuery(searchInput.trim())
       performSearch(searchInput.trim(), 1)
     }
+  }
+
+  const handleInputChange = (e) => {
+    const value = e.target.value
+    setSearchInput(value)
   }
 
   const handleLoadMore = () => {
@@ -143,9 +162,10 @@ const SearchPage = () => {
               <input
                 type="text"
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={handleInputChange}
                 placeholder="Search for movies, TV shows..."
                 className="input-field pl-12 pr-4 py-3 text-lg w-full"
+                autoComplete="off"
               />
             </div>
           </form>
